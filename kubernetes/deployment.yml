@@ -1,19 +1,19 @@
 apiVersion : apps/v1
 kind: Deployment
 metadata:
-  name: sampleapp 
+  name: myapp 
 spec:
   replicas: #replicaNo#
   selector:
     matchLabels:
-      app: sampleapp
+      app: myapp
   template:
     metadata:
       labels:
-        app: sampleapp 
+        app: myapp 
     spec:
       containers:
-        - name: sampleapp 
-          image: k8sexamplesacr.azurecr.io/sampleapp
+        - name: myapp 
+          image: jk1650acr.azurecr.io/myapp
           ports:
           - containerPort: 80
