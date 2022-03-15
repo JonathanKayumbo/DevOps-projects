@@ -38,28 +38,33 @@ stages:
   dependsOn: Build
   variables:
     acrsecret: jk1650acrauth
-    acrdevurl: 'jk1650acr.azurecr.io'
-    replicaNo: 3
+
   jobs:
-  - deployment: Deploy
+  - job: Deploy
     displayName: Deploy to AKS
     pool: 
       vmImage: ubuntu-latest
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: DownloadPipelineArtifact@2
-            inputs:
-              buildType: 'current'
-              artifactName: 'manifests'
-              targetPath: '$(Pipeline.Workspace)/manifests'
-          - task: KubernetesManifest@0
-            inputs:
-              action: 'createSecret'
-              kubernetesServiceConnection: 'jk1650-aks-cluster'
-              namespace: 'default'
-              secretType: 'dockerRegistry'
-              secretName: '$(acrsecret)'
-              dockerRegistryEndpoint: 'jk1650acr'
+    steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'current'
+        artifactName: 'manifests'
+        targetPath: '$(Pipeline.Workspace)/manifests'
+    - task: KubernetesManifest@0
+      inputs:
+        action: 'createSecret'
+        kubernetesServiceConnection: 'jk1650-aks-cluster'
+        namespace: 'default'
+        secretType: 'dockerRegistry'
+        secretName: '$(acrsecret)'
+        dockerRegistryEndpoint: 'jk1650acr'
+    - task: KubernetesManifest@0
+      inputs:
+        action: 'deploy'
+        kubernetesServiceConnection: 'jk1650-aks-cluster'
+        namespace: 'default'
+        manifests: |
+          $(Pipeline.Workspace)/manifests/deployment.yml
+          $(Pipeline.Workspace)/manifests/service.yml
+
               
